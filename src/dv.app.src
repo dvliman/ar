@@ -1,0 +1,15 @@
+{application, dv, [
+    {description, "online appointment & scheduling app"},
+    {vsn, "0.0.1"},
+    {modules, []},
+    {registered, []},
+    {mod, {dv, []}},
+    {env, []},
+    {included_applications, [lager]},
+    {applications, [kernel,
+                    stdlib,
+                    lager,
+                    sasl,
+                    jiffy,
+                    ibrowse]}
+]}.
