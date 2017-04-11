@@ -1,4 +1,4 @@
--module(sup).
+-module(dv_sup).
 -behavior(supervisor).
 
 -export([start_link/0, init/1]).

@@ -1,0 +1,2 @@
+{"src/*", [debug_info]}.
+{"test/*", [debug_info]}.

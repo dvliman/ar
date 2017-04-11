@@ -2,14 +2,10 @@
     {description, "online appointment & scheduling app"},
     {vsn, "0.0.1"},
     {modules, []},
-    {registered, [sup]},
-    {mod, {dv, []}},
+    {registered, [dv_sup]},
+    {mod, {dv_app, []}},
     {env, []},
     {applications, [kernel,
                     stdlib,
-                    lager,
-                    sasl,
-                    jiffy,
-                    ibrowse,
-                    cowboy]}
+                    sasl]}
 ]}.
