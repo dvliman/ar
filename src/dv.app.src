@@ -5,7 +5,13 @@
     {registered, [dv_sup]},
     {mod, {dv_app, []}},
     {env, []},
-    {applications, [kernel,
-                    stdlib,
-                    sasl]}
+    {applications,
+        [kernel,
+         stdlib,
+         sasl,
+         lager,
+         jiffy,
+         ibrowse,
+         epgsql,
+         cowboy]}
 ]}.
