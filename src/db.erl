@@ -14,7 +14,7 @@
 -export([conn/0]).
 
 conn() ->
-    gen_server:call(self(), conn).
+    gen_server:call(?MODULE, conn).
 
 start_link(Args) ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, Args, []).
@@ -35,8 +35,8 @@ handle_call(conn, _From, #state{status = connected, conn = C} = State) ->
 handle_cast(_Msg, State) ->
     {noreply, State}.
 
-% upstream postgres connection goes down, restart this
-% will try 10 times and after that, fail completely
+% upstream postgres connection goes down, crash & restart
+% retry 10 times until supervisor reach max intensity
 handle_info({'EXIT', _, _}, State) ->
     {stop, postgres_conn_closed, State}.
 
