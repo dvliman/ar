@@ -7,4 +7,9 @@ start_link() ->
     supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
 init([]) ->
-    {ok, {{one_for_all, 0, 1}, []}}.
+    {ok, DBConfig} = application:get_env(dv, db),
+
+    DBSpec = {db, {db, start_link, [DBConfig]},
+        transient, 1000, worker, [db]},
+
+    {ok, {{one_for_all, 10, 30}, [DBSpec]}}.

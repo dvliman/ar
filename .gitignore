@@ -1,5 +1,6 @@
 rebar.lock
 *.iml
+*.beam
 _build/
 .idea/
 log/
