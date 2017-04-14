@@ -3,4 +3,9 @@ rebar.lock
 *.beam
 _build/
 .idea/
+*.html
+*.css
+*.js
+*@nohost*
 log/
+ct_log_cache
