@@ -1,0 +1,6 @@
+{"src/*", [debug_info,
+		   {i, "include"}]}.
+
+{"test/*", [debug_info,
+		    {i, "include"}]}.
+
