@@ -28,36 +28,54 @@ signup(Req, State) ->
         <<"email">>  := Email,
         <<"street">> := Street,
         <<"state">>  := St,
-        <<"zipcode">>  := Zipcode}} = Payload,
-
+        <<"zipcode">>  := Zipcode},
+      <<"calendar">> := #{
+          <<"name">>    := Cname,
+          <<"opening">> := Opening,
+          <<"closing">> := Closing,
+          <<"timeblock">> := Timeblock,
+          <<"timezone">>  := Timezone}} = Payload,
     Query = utils:interpolate(
         <<"BEGIN;
             INSERT INTO orgs (name, subdomain, website, plan)
                 VALUES ('~s', '~s', '~s', 'free');
             INSERT INTO accounts (orgid, fname, lname, phone, email, street, state, zipcode)
                 VALUES (currval('orgs_id_seq'), '~s', '~s', '~s', '~s', '~s', '~s', '~s');
+            INSERT INTO calendars (orgid, name, opening, closing, timeblock, timezone)
+                VALUES (currval('orgs_id_seq'), '~s', ~b, ~b, ~b, '~s');
+
             SELECT id, name, subdomain, website, plan
                 FROM orgs WHERE id = currval('orgs_id_seq');
             SELECT id, orgid, fname, lname, phone, email, street, state, zipcode
                 FROM accounts WHERE id = currval('accounts_id_seq');
+            SELECT id, orgid, name, opening, closing, timeblock, timezone
+                FROM calendars WHERE id = currval('calendars_id_seq');
            COMMIT;">>,
         [Name, Subdomain, Website,
-         Fname, Lname, Phone, Email, Street, St, Zipcode]),
+         Fname, Lname, Phone, Email, Street, St, Zipcode,
+         Cname, Opening, Closing, Timeblock, Timezone]),
 
     case epgsql:squery(db:conn(), Query) of
         [{ok, [], []},
-         {ok, 1}, {ok, 1},
+         {ok, 1}, {ok, 1}, {ok, 1},
          {ok, Columns1, Rows1},
          {ok, Columns2, Rows2},
+         {ok, Columns3, Rows3},
          {ok, [], []}] ->
-            Org     = utils:extract_resultset(Columns1, Rows1),
-            Account = utils:extract_resultset(Columns2, Rows2),
+            Org      = utils:extract_resultset(Columns1, Rows1),
+            Account  = utils:extract_resultset(Columns2, Rows2),
+            Calendar = utils:extract_resultset(Columns3, Rows3),
 
-            Reply = jiffy:encode({[{org, {Org}}, {account, {Account}}]}),
+            Reply = jiffy:encode({[
+                {org, {Org}},
+                {account, {Account}},
+                {calendar, {Calendar}}]}),
 
             Req2 = cowboy_req:set_resp_body(Reply, Req1),
             {true, Req2, State};
-        Reason ->
-            ct:pal("errout transaction"),
+
+        % transaction aborted for some reason, commit, and bad_request
+        {error, {error, error, <<"25P02">>, _, _}} = Reason ->
+            {ok, [], []} = epgsql:squery(db:conn(), <<"commit;">>),
             {true, Req1, State}
     end.

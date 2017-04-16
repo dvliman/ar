@@ -1,6 +1,8 @@
 -module(utils).
 
--export([interpolate/2, extract_resultset/2]).
+-export([interpolate/2,
+         extract_resultset/2,
+         uuid/0, binuuid/0, binhex/0]).
 
 interpolate(Pattern, Args) when length(Args) > 0 ->
     lists:flatten(io_lib:format(Pattern, Args)).
@@ -21,3 +23,12 @@ tup2list(Tuple) ->
 tup2list(Tuple, Pos, Size) when Pos =< Size ->
     [element(Pos,Tuple) | tup2list(Tuple, Pos+1, Size)];
 tup2list(_Tuple,_Pos,_Size) -> [].
+
+uuid() ->
+    uuid:uuid_to_string(uuid:get_v4()).
+
+binuuid() ->
+    list_to_binary(uuid()).
+
+binhex() ->
+    base64:encode(binuuid()).

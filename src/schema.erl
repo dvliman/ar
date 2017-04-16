@@ -27,11 +27,11 @@ up(calendars) ->
     {ok, [], []} = epgsql:squery(db:conn(),
         "CREATE TABLE IF NOT EXISTS calendars (
             id        SERIAL NOT NULL,
-            orgid     INTEGER,
-            name      TEXT,
-            opening   INTEGER,
-            closing   INTEGER,
-            timeblock INTEGER,
+            orgid     INTEGER NOT NULL,
+            name      TEXT NOT NULL,
+            opening   INTEGER NOT NULL,
+            closing   INTEGER NOT NULL,
+            timeblock INTEGER NOT NULL,
             timezone  TEXT NOT NULL)");
 
 up(accounts) ->
@@ -45,7 +45,7 @@ up(accounts) ->
             email     TEXT,
             street    TEXT,
             state     TEXT,
-            zipcode   TEXT)"); % todo: password?
+            zipcode   TEXT)"); % todo: password?, zipcode should be integer
 
 up(events) ->
     {ok, [], []} = epgsql:squery(db:conn(),

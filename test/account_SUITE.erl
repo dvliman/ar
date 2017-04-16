@@ -1,9 +1,10 @@
 -module(account_SUITE).
 
 -export([all/0,
-         happypath/1]).
+         create_account_need_org/1]).
 
-all() -> [happypath].
+all() -> [create_account_need_org].
 
-happypath(_) ->
+create_account_need_org(_) ->
+
     ok.

@@ -1,24 +1,34 @@
 -module(signup_SUITE).
 
 -export([all/0,
-    happypath/1]).
+         bootstrap/1]).
 
-all() -> [happypath].
+all() -> [bootstrap].
 
-happypath(_) ->
+% create 'org', 'account', and a 'calendar'; org plan is 'free'
+bootstrap(_) ->
     Endpoint = proplists:get_value(signup_endpoint, test_utils:urls()),
+
     Payload = #{
         org => #{
-            name      => <<"org-name">>,
-            subdomain => <<"org-subdomain">>,
-            website   => <<"org-website">>},
+            name      => utils:binhex(),
+            subdomain => utils:binhex(),
+            website   => utils:binhex()},
         account => #{
-            fname => <<"account-fname">>,
-            lname => <<"account-lname">>,
-            phone => <<"+17142532851">>,
-            email => <<"limanoit@gmail.com">>,
-            street   => <<"undefined">>,
-            state    => <<"undefined">>,
-            zipcode  => <<"undefined">>}},
-    Result = ibrowse:send_req(Endpoint, test_utils:headers(), post, jiffy:encode(Payload)),
-    ct:pal("result:~p", [Result]).
+            fname => utils:binhex(),
+            lname => utils:binhex(),
+            phone => utils:binhex(),
+            email => utils:binhex(),
+            street  => utils:binhex(),
+            state   => utils:binhex(),
+            zipcode => utils:binhex()},
+        calendar => #{
+            name    => utils:binhex(),
+            opening => 9,
+            closing => 5,
+            timeblock => 60,
+            timezone  => utils:binhex()}},
+
+    {ok, "200", _, Resp} = ibrowse:send_req(Endpoint,
+        test_utils:headers(), post, jiffy:encode(Payload)),
+    jiffy:decode(Resp).
