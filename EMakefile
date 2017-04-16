@@ -1,11 +1,11 @@
 {"src/*", [
     debug_info,
 	{i, "include"},
-    {outdir, "_build/defaut/lib/dv/ebin"}
+    {outdir, "_build/default/lib/dv/ebin"}
 ]}.
 
 {"test/*", [
     debug_info,
 	{i, "include"},
-    {outdir, "_build/defaut/lib/dv/ebin"}
+    {outdir, "_build/default/lib/dv/ebin"}
 ]}.
