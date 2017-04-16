@@ -11,8 +11,7 @@ happypath(_) ->
         org => #{
             name      => <<"org-name">>,
             subdomain => <<"org-subdomain">>,
-            website   => <<"org-website">>,
-            plan      => <<"free">>},
+            website   => <<"org-website">>},
         account => #{
             fname => <<"account-fname">>,
             lname => <<"account-lname">>,

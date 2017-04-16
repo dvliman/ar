@@ -20,8 +20,7 @@ signup(Req, State) ->
     #{<<"org">> := #{
         <<"name">>      := Name,
         <<"subdomain">> := Subdomain,
-        <<"website">>   := Website,
-        <<"plan">>      := Plan},
+        <<"website">>   := Website},
       <<"account">> := #{
         <<"fname">>  := Fname,
         <<"lname">>  := Lname,
@@ -31,22 +30,34 @@ signup(Req, State) ->
         <<"state">>  := St,
         <<"zipcode">>  := Zipcode}} = Payload,
 
-%%    Query = utils:interpolate(
-%%        <<"BEGIN;
-%%            INSERT INTO orgs (name, subdomain, website, plan)
-%%                VALUES ('~s', '~s', '~s', '~s');
-%%            INSERT INTO accounts (orgid, fname, lname, phone, email, street, state, zipcode)
-%%                VALUES (currval('orgs_id_seq'), '~s', '~s', '~s', '~s', '~s', '~s', '~s');
-%%           COMMIT;">>,
-%%        [Name, Subdomain, Website, Plan,
-%%         Fname, Lname, Phone, Email, Street, St, Zipcode]),
+    Query = utils:interpolate(
+        <<"BEGIN;
+            INSERT INTO orgs (name, subdomain, website, plan)
+                VALUES ('~s', '~s', '~s', 'free');
+            INSERT INTO accounts (orgid, fname, lname, phone, email, street, state, zipcode)
+                VALUES (currval('orgs_id_seq'), '~s', '~s', '~s', '~s', '~s', '~s', '~s');
+            SELECT id, name, subdomain, website, plan
+                FROM orgs WHERE id = currval('orgs_id_seq');
+            SELECT id, orgid, fname, lname, phone, email, street, state, zipcode
+                FROM accounts WHERE id = currval('accounts_id_seq');
+           COMMIT;">>,
+        [Name, Subdomain, Website,
+         Fname, Lname, Phone, Email, Street, St, Zipcode]),
 
-    {ok, S1} = epgsql:parse(db:conn(), "INSERT INTO orgs (name, subdomain, website, plan)
-        VALUES ('$1', '$2', '$3', '$4')", [text, text, text, text]),
-    {ok, S2} = epgsql:parse(db:conn(), "INSERTO INTO accounts (orgid, fname, lname, phone, email, street, state, zipcode)
-        VALUES (currval('orgs_id_seq'), '$1', '$2', '$3', '$4', '$5', '$6', '$7')", [text, text, text, text, text, text, text]),
-    Result = epgsql:execute_batch(db:conn(),
-        [{S1, [Name, Subdomain, Website, Plan]}],
-        [{S2, [Fname, Lname, Phone, Email, Street, St, Zipcode]}]),
-    ct:pal("result:~p", [Result]),
-    {true, Req1, State}.
+    case epgsql:squery(db:conn(), Query) of
+        [{ok, [], []},
+         {ok, 1}, {ok, 1},
+         {ok, Columns1, Rows1},
+         {ok, Columns2, Rows2},
+         {ok, [], []}] ->
+            Org     = utils:extract_resultset(Columns1, Rows1),
+            Account = utils:extract_resultset(Columns2, Rows2),
+
+            Reply = jiffy:encode({[{org, {Org}}, {account, {Account}}]}),
+
+            Req2 = cowboy_req:set_resp_body(Reply, Req1),
+            {true, Req2, State};
+        Reason ->
+            ct:pal("errout transaction"),
+            {true, Req1, State}
+    end.
