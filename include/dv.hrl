@@ -7,5 +7,5 @@
 -record(org,         {id, name, subdomain, website, plan}).
 -record(calendar,    {id, name, opening, closing, timeblock, timezone}).
 -record(account,     {id, fname, lname, phone, email, street, state, zipcode, password}).
--record(appointment, {id, name, calendarid, accountid, start, 'end', status}).
--record(reminder,    {id, to, body, kind}).
+-record(event,       {id, name, calendarid, accountid, stime, etime, ctime, status}).
+-record(reminder,    {id, accountid, recipient, body, kind}).
