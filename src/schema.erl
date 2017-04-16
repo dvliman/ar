@@ -27,6 +27,7 @@ up(calendars) ->
     {ok, [], []} = epgsql:squery(db:conn(),
         "CREATE TABLE IF NOT EXISTS calendars (
             id        SERIAL NOT NULL,
+            orgid     INTEGER,
             name      TEXT,
             opening   INTEGER,
             closing   INTEGER,
@@ -37,6 +38,7 @@ up(accounts) ->
     {ok, [], []} = epgsql:squery(db:conn(),
         "CREATE TABLE IF NOT EXISTS accounts (
             id        SERIAL NOT NULL,
+            orgid     INTEGER,
             fname     TEXT,
             lname     TEXT,
             phone     TEXT,

@@ -5,7 +5,7 @@
     end).
 
 -record(org,         {id, name, subdomain, website, plan}).
--record(calendar,    {id, name, opening, closing, timeblock, timezone}).
--record(account,     {id, fname, lname, phone, email, street, state, zipcode, password}).
+-record(calendar,    {id, orgid, name, opening, closing, timeblock, timezone}).
+-record(account,     {id, orgid, fname, lname, phone, email, street, state, zipcode, password}).
 -record(event,       {id, name, calendarid, accountid, stime, etime, ctime, status}).
 -record(reminder,    {id, accountid, recipient, body, kind}).
