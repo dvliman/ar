@@ -1,11 +1,15 @@
 -module(utils).
 
 -export([interpolate/2,
+         intersection/2,
          extract_resultset/2,
          uuid/0, binuuid/0, binhex/0]).
 
 interpolate(Pattern, Args) when length(Args) > 0 ->
     lists:flatten(io_lib:format(Pattern, Args)).
+
+intersection(L1, L2) ->
+    lists:filter(fun(X) -> lists:member(X, L2) end, L1).
 
 extract_resultset(Columns, Rows) ->
     C = lists:map(fun extract_column/1, Columns),

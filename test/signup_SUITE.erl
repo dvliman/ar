@@ -29,6 +29,6 @@ bootstrap(_) ->
             timeblock => 60,
             timezone  => utils:binhex()}},
 
-    {ok, "200", _, Resp} = ibrowse:send_req(Endpoint,
-        test_utils:headers(), post, jiffy:encode(Payload)),
+    {ok, "200", _, Resp} = ibrowse:send_req(Endpoint, test_utils:headers(),
+        post, jiffy:encode(Payload)),
     jiffy:decode(Resp).

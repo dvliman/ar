@@ -35,6 +35,7 @@ signup(Req, State) ->
           <<"closing">> := Closing,
           <<"timeblock">> := Timeblock,
           <<"timezone">>  := Timezone}} = Payload,
+
     Query = utils:interpolate(
         <<"BEGIN;
             INSERT INTO orgs (name, subdomain, website, plan)
@@ -74,8 +75,11 @@ signup(Req, State) ->
             Req2 = cowboy_req:set_resp_body(Reply, Req1),
             {true, Req2, State};
 
-        % transaction aborted for some reason, commit, and bad_request
+        % transaction aborted, commit, and bad_request
         {error, {error, error, <<"25P02">>, _, _}} = Reason ->
             {ok, [], []} = epgsql:squery(db:conn(), <<"commit;">>),
-            {true, Req1, State}
+            Req2 = errors:response(transaction_aborted, Req1),
+            {true, Req2, State}
+
+        % otherwise, crash with 500
     end.
