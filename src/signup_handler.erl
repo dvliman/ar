@@ -79,7 +79,7 @@ signup(Req, State) ->
         {error, {error, error, <<"25P02">>, _, _}} = Reason ->
             {ok, [], []} = epgsql:squery(db:conn(), <<"commit;">>),
             Req2 = errors:response(transaction_aborted, Req1),
-            {true, Req2, State}
+            {stop, Req2, State}
 
         % otherwise, crash with 500
     end.
