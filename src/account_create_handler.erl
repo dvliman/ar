@@ -25,29 +25,27 @@ process(Req, State) ->
             {true, Req1, State};
         Error ->
             Req2 = errors:response(Error, Req1),
-            {true, Req2, State}
+            {stop, Req2, State}
     end.
 
 validate(Payload) ->
-    Required = [atom_to_binary(X, utf8) || X <- (record_info(fields, account) -- [id])],
+    Required = ?required_fields(account),
 
     case utils:intersection(Required, maps:keys(Payload)) of
         Required ->
             maps:fold(fun check/3, ok, Payload); % now check each attribute
         Intersected ->
             Missing = Required -- Intersected,
-            {error, missing_required_fields, Missing}
+            {error, missing_required_fields, hd(Missing)}
     end.
 
 check(<<"orgid">>, OrgId, ok) ->
-    Query = utils:interpolate(<<"select exists (select id from orgs where id = ~b)">>, [OrgId]),
+    Query = utils:interpolate(<<"SELECT EXISTS (SELECT id FROM orgs WHERE id = ~b)">>,
+        [OrgId]),
 
     case epgsql:squery(db:conn(), Query) of
         {ok, _, [{<<"t">>}]} -> ok;
-        {ok, _, [{<<"f">>}]} -> {error, missing_orgid};
-        Error ->
-            ct:pal("account-create, validate-orgid:~p", [Error]),
-            {error, account_create_failure}
+        {ok, _, [{<<"f">>}]} -> {error, invalid_orgid}
     end;
 
 check(_, _, ok)               -> ok;

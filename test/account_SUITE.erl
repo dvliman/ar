@@ -1,23 +1,27 @@
 -module(account_SUITE).
 
 -export([all/0,
-         create_account_need_org/1]).
+         invalid_orgid/1]).
 
-all() -> [create_account_need_org].
+all() -> [invalid_orgid].
 
-create_account_need_org(_Config) ->
+invalid_orgid(_Config) ->
     Endpoint = proplists:get_value(account_create_endpoint, test_utils:urls()),
 
     Payload = #{account => #{
-        orgid => 9999,
+        orgid => 9999, % this shouldnt exist
         fname => utils:binhex(),
         lname => utils:binhex(),
         phone => utils:binhex(),
         email => utils:binhex(),
         street  => utils:binhex(),
         state   => utils:binhex(),
-        zipcode => utils:binhex()}},
+        zipcode => utils:binhex(),
+        password => utils:binhex()}},
 
-    Result = ibrowse:send_req(Endpoint, test_utils:headers(),
+    {ok, "400", _, Body} = ibrowse:send_req(Endpoint, test_utils:headers(),
         post, jiffy:encode(Payload)),
-    ct:pal("result:~p", [Result]).
+
+    {[{<<"statuscode">>, 400},
+      {<<"category">>, <<"bad_request">>},
+      {<<"reason">>, <<"invalid_orgid">>}]} = jiffy:decode(Body).
