@@ -1,11 +1,13 @@
 {"src/*", [
     debug_info,
+    {parse_transform, lager_transform},
 	{i, "include"},
     {outdir, "_build/default/lib/dv/ebin"}
 ]}.
 
 {"test/*", [
     debug_info,
+    {parse_transform, lager_transform},
 	{i, "include"},
     {outdir, "_build/default/lib/dv/ebin"}
 ]}.
