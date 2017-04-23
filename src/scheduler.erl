@@ -8,7 +8,6 @@
          handle_call/3,
          handle_cast/2,
          handle_info/2,
-    get_sleep_time/0,
          terminate/2,
          code_change/3]).
 
@@ -18,7 +17,11 @@ start_link(Args) ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, Args, []).
 
 init([]) ->
-    {ok, {}}.
+    {SleepUntil, Next} = get_sleep_time(),
+    Tref = erlang:send_after(SleepUntil, scheduler, {wakeup, Next}),
+
+    {ok, {tref = Tref,
+          next = Next}}.
 
 handle_call(_Msg, _From, State) ->
     {noreply, State}.
@@ -43,10 +46,11 @@ code_change(_OldVsn, State, _Extra) ->
 get_sleep_time() ->
     case db:squery(queries:earliest_runat()) of
         {ok, _, []} ->
+            % there is no next earliest reminder, check again in 1 minute
             {MegaSecs, Secs, MicroSecs} = erlang:timestamp(),
             Next = {MegaSecs, Secs + 60, MicroSecs}, % advance 1 minute
             {?ONE_MINUTE, iso8601:format(Next)};
-        
+
         {ok, _, [Next]} ->
             Diff = utils:utc_diff(Next, iso8601:format(erlang:timestamp())),
             {Diff, Next}
