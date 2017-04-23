@@ -48,7 +48,7 @@ get_sleep_time() ->
         {ok, _, []} ->
             % there is no next earliest reminder, check again in 1 minute
             {MegaSecs, Secs, MicroSecs} = erlang:timestamp(),
-            Next = {MegaSecs, Secs + 60, MicroSecs}, % advance 1 minute
+            Next = {MegaSecs, Secs + 60, MicroSecs},
             {?ONE_MINUTE, iso8601:format(Next)};
 
         {ok, _, [Next]} ->

@@ -3,7 +3,8 @@
 -export([signup/0,
          org_exists/0,
          earliest_runat/0,
-         insert_reminder/0]).
+         new_reminder/0,
+         fetch_and_schedule_reminders/0]).
 
 signup() ->
     <<"BEGIN;
@@ -32,6 +33,12 @@ earliest_runat() ->
         ORDER BY runat ASC
         LIMIT 1">>.
 
-insert_reminder() ->
+new_reminder() ->
     <<"INSERT INTO reminders (accountid, recipient, body, kind, status, runat)
         VALUES (~b, '~s', '~s', '~s', 'new', '~s');">>.
+
+fetch_and_schedule_reminders() ->
+    <<"UPDATE reminders SET status = 'scheduled'
+        FROM (SELECT id FROM reminders WHERE runat = '~s') AS subquery
+        WHERE reminders.id = subquery.id
+        RETURNING reminders.id as id, accountid, recipient, body, kind">>.
