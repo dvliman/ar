@@ -15,7 +15,7 @@ up() ->
     up(reminders).
 
 up(orgs) ->
-    {ok, [], []} = epgsql:squery(db:conn(),
+    {ok, [], []} = db:squery(
         "CREATE TABLE IF NOT EXISTS orgs (
             id        SERIAL NOT NULL,
             name      TEXT NOT NULL,
@@ -24,7 +24,7 @@ up(orgs) ->
             plan      TEXT NOT NULL)");
 
 up(calendars) ->
-    {ok, [], []} = epgsql:squery(db:conn(),
+    {ok, [], []} = db:squery(
         "CREATE TABLE IF NOT EXISTS calendars (
             id        SERIAL NOT NULL,
             orgid     INTEGER NOT NULL,
@@ -35,7 +35,7 @@ up(calendars) ->
             timezone  TEXT NOT NULL)");
 
 up(accounts) ->
-    {ok, [], []} = epgsql:squery(db:conn(),
+    {ok, [], []} = db:squery(
         "CREATE TABLE IF NOT EXISTS accounts (
             id        SERIAL NOT NULL,
             orgid     INTEGER,
@@ -48,7 +48,7 @@ up(accounts) ->
             zipcode   TEXT)"); % todo: password?, zipcode should be integer
 
 up(events) ->
-    {ok, [], []} = epgsql:squery(db:conn(),
+    {ok, [], []} = db:squery(
         "CREATE TABLE IF NOT EXISTS events (
             id         SERIAL NOT NULL,
             name       TEXT NOT NULL,
@@ -59,7 +59,7 @@ up(events) ->
             ctime      TIMESTAMP NOT NULL DEFAULT (now() AT TIME ZONE 'utc'))");
 
 up(reminders) ->
-    {ok, [], []} = epgsql:squery(db:conn(),
+    {ok, [], []} = db:squery(
         "CREATE TABLE IF NOT EXISTS reminders (
             id        SERIAL NOT NULL,
             accountid INTEGER NOT NULL,
@@ -76,8 +76,8 @@ down() ->
     down(events),
     down(reminders).
 
-down(orgs)      -> epgsql:squery(db:conn(), "DROP TABLE orgs");
-down(calendars) -> epgsql:squery(db:conn(), "DROP TABLE calendars");
-down(accounts)  -> epgsql:squery(db:conn(), "DROP TABLE accounts");
-down(events)    -> epgsql:squery(db:conn(), "DROP TABLE events");
-down(reminders) -> epgsql:squery(db:conn(), "DROP TABLE reminders").
+down(orgs)      -> db:squery("DROP TABLE orgs");
+down(calendars) -> db:squery("DROP TABLE calendars");
+down(accounts)  -> db:squery("DROP TABLE accounts");
+down(events)    -> db:squery("DROP TABLE events");
+down(reminders) -> db:squery("DROP TABLE reminders").

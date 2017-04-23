@@ -20,8 +20,8 @@ init([]) ->
     {SleepUntil, Next} = get_sleep_time(),
     Tref = erlang:send_after(SleepUntil, scheduler, {wakeup, Next}),
 
-    {ok, {tref = Tref,
-          next = Next}}.
+    {ok, #state{tref = Tref,
+                next = Next}}.
 
 handle_call(_Msg, _From, State) ->
     {noreply, State}.

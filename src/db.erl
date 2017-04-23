@@ -11,10 +11,7 @@
          terminate/2,
          code_change/3]).
 
--export([conn/0, squery/1, squery/2]).
-
-conn() ->
-    gen_server:call(?MODULE, conn).
+-export([squery/1, squery/2]).
 
 squery(Query) ->
     gen_server:call(?MODULE, {squery, Query}).

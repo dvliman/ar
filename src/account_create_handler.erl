@@ -40,7 +40,7 @@ validate(Payload) ->
     end.
 
 check(<<"orgid">>, OrgId, ok) ->
-    case db:squery(queries:org_exists(), OrgId) of
+    case db:squery(queries:org_exists(), [OrgId]) of
         {ok, _, [{<<"t">>}]} -> ok;
         {ok, _, [{<<"f">>}]} -> {error, invalid_orgid}
     end;
