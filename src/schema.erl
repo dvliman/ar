@@ -51,22 +51,23 @@ up(events) ->
     {ok, [], []} = epgsql:squery(db:conn(),
         "CREATE TABLE IF NOT EXISTS events (
             id         SERIAL NOT NULL,
-            name       TEXT,
-            calendarid INTEGER,
-            accountid  INTEGER,
+            name       TEXT NOT NULL,
+            calendarid INTEGER NOT NULL,
+            accountid  INTEGER NOT NULL,
             stime      TIMESTAMP NOT NULL,
             etime      TIMESTAMP NOT NULL,
-            ctime      TIMESTAMP NOT NULL DEFAULT (now() AT TIME ZONE 'utc'),
-            status     TEXT)");
+            ctime      TIMESTAMP NOT NULL DEFAULT (now() AT TIME ZONE 'utc'))");
 
 up(reminders) ->
     {ok, [], []} = epgsql:squery(db:conn(),
         "CREATE TABLE IF NOT EXISTS reminders (
             id        SERIAL NOT NULL,
-            accountid INTEGER,
-            recipient TEXT,
-            body      TEXT,
-            kind      TEXT)").
+            accountid INTEGER NOT NULL,
+            recipient TEXT NOT NULL,
+            body      TEXT NOT NULL,
+            kind      TEXT NOT NULL,
+            status    TEXT NOT NULL,
+            runat     TIMESTAMP NOT NULL)").
 
 down() ->
     down(orgs),

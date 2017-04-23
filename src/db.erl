@@ -11,10 +11,16 @@
          terminate/2,
          code_change/3]).
 
--export([conn/0]).
+-export([conn/0, squery/1, squery/2]).
 
 conn() ->
     gen_server:call(?MODULE, conn).
+
+squery(Query) ->
+    gen_server:call(?MODULE, {squery, Query}).
+
+squery(Query, Params) ->
+    gen_server:call(?MODULE, {squery, Query, Params}).
 
 start_link(Args) ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, Args, []).
@@ -29,8 +35,16 @@ init(Args) ->
             {ok, #state{status = Reason, conn = undefined}}
     end.
 
-handle_call(conn, _From, #state{status = connected, conn = C} = State) ->
-    {reply, C, State}.
+handle_call(conn, _, #state{status = connected, conn = C} = State) ->
+    {reply, C, State};
+
+handle_call({squery, Query}, _, #state{status = connected, conn = C} = State) ->
+    Reply = epgsql:squery(C, Query),
+    {reply, Reply, State};
+
+handle_call({squery, Query, Params}, _, #state{status = connected, conn = C} = State) ->
+    Reply = epgsql:squery(C, utils:interpolate(Query, Params)),
+    {reply, Reply, State}.
 
 handle_cast(_Msg, State) ->
     {noreply, State}.

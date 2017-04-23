@@ -40,10 +40,7 @@ validate(Payload) ->
     end.
 
 check(<<"orgid">>, OrgId, ok) ->
-    Query = utils:interpolate(<<"SELECT EXISTS (SELECT id FROM orgs WHERE id = ~b)">>,
-        [OrgId]),
-
-    case epgsql:squery(db:conn(), Query) of
+    case db:squery(queries:org_exists(), OrgId) of
         {ok, _, [{<<"t">>}]} -> ok;
         {ok, _, [{<<"f">>}]} -> {error, invalid_orgid}
     end;

@@ -1,9 +1,13 @@
 -module(utils).
 
+-define(GREGORIAN_SECONDS, 62167219200). % Jan 1, 1970
+
 -export([interpolate/2,
          intersection/2,
          extract_resultset/2,
-         uuid/0, binuuid/0, binhex/0]).
+         uuid/0, binuuid/0, binhex/0,
+         datetime_to_timestamp/1,
+         utc_diff/2]).
 
 interpolate(Pattern, Args) when length(Args) > 0 ->
     lists:flatten(io_lib:format(Pattern, Args)).
@@ -36,3 +40,16 @@ binuuid() ->
 
 binhex() ->
     base64:encode(binuuid()).
+
+% calendar:datetime() to erlang:timestamp()
+datetime_to_timestamp(DateTime) ->
+    Seconds = calendar:datetime_to_gregorian_seconds(DateTime) - ?GREGORIAN_SECONDS,
+    {Seconds div 1000000, Seconds rem 1000000, 0}.
+
+% iso8601 - iso8601 = diff in milliseconds
+utc_diff(Larger, Smaller) ->
+    Larger1  = datetime_to_timestamp(iso8601:parse(Larger)),
+    Smaller1 = datetime_to_timestamp(iso8601:parse(Smaller)),
+
+    Microseconds = timer:now_diff(Larger1, Smaller1),
+    trunc(Microseconds div 1000).
