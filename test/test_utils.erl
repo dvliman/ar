@@ -1,6 +1,7 @@
 -module(test_utils).
 
 -export([urls/0,
+         test/1,
          headers/0]).
 
 urls() ->
@@ -13,3 +14,9 @@ urls() ->
 
 headers() ->
     [{<<"Content-Type">>, <<"application/json">>}].
+
+test(Module) ->
+    lists:map(
+        fun(TestCase) ->
+            erlang:apply(Module, TestCase, [[]])
+        end, erlang:apply(Module, all, [])).

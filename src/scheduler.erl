@@ -30,6 +30,12 @@ handle_cast(_Msg, State) ->
     {noreply, State}.
 
 handle_info({wakeup, Time}, State) ->
+    Current = drop_secs(Time),
+
+    case db:squery(queries:fetch_and_schedule_reminders(), [Current]) of
+        {ok, 0} ->
+            ok
+    end,
     % get all reminders to be send (drop the minute part)
     % cast it to twitter or sendgrid
     % check all possible failure message (and report per org, and to admin)
@@ -44,7 +50,9 @@ code_change(_OldVsn, State, _Extra) ->
 
 % return {milliseconds :: pos_integer(), iso8601 :: binary()}
 get_sleep_time() ->
-    case db:squery(queries:earliest_runat()) of
+    Now = iso8601:format(erlang:timestamp()),
+
+    case db:squery(queries:earliest_runat(), [Now]) of
         {ok, _, []} ->
             % there is no next earliest reminder, check again in 1 minute
             {MegaSecs, Secs, MicroSecs} = erlang:timestamp(),
@@ -55,3 +63,7 @@ get_sleep_time() ->
             Diff = utils:utc_diff(Next, iso8601:format(erlang:timestamp())),
             {Diff, Next}
     end.
+
+drop_secs(Utc) ->
+    {Date, {Hour, Minute, _}} = iso8601:parse(Utc),
+    iso8601:format({Date, {Hour, Minute, 00}}).

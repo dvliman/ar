@@ -29,7 +29,7 @@ org_exists() ->
 earliest_runat() ->
     <<"SELECT to_char(runat::timestamp at time zone 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"')
         FROM reminders
-        WHERE runat >= (now() AT TIME ZONE 'utc')
+        WHERE runat >= '~s'
         ORDER BY runat ASC
         LIMIT 1">>.
 
