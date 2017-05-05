@@ -8,7 +8,6 @@
     {applications,
         [kernel,
          stdlib,
-         sasl,
          lager,
          jiffy,
          ibrowse,

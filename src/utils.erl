@@ -7,7 +7,8 @@
          extract_resultset/2,
          uuid/0, binuuid/0, binhex/0,
          datetime_to_timestamp/1,
-         utc_diff/2]).
+         utc_diff/2,
+         now/0]).
 
 interpolate(Pattern, Args) when length(Args) > 0 ->
     lists:flatten(io_lib:format(Pattern, Args)).
@@ -53,3 +54,6 @@ utc_diff(Larger, Smaller) ->
 
     Microseconds = timer:now_diff(Larger1, Smaller1),
     trunc(Microseconds div 1000).
+
+now() ->
+    iso8601:format(erlang:timestamp()).

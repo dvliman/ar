@@ -9,25 +9,12 @@ all() -> [bootstrap].
 bootstrap(_) ->
     Endpoint = proplists:get_value(signup_endpoint, test_utils:urls()),
 
-    Payload = #{
-        org => #{
-            name      => utils:binhex(),
-            subdomain => utils:binhex(),
-            website   => utils:binhex()},
-        account => #{
-            fname => utils:binhex(),
-            lname => utils:binhex(),
-            phone => utils:binhex(),
-            email => utils:binhex(),
-            street  => utils:binhex(),
-            state   => utils:binhex(),
-            zipcode => utils:binhex()},
-        calendar => #{
-            name    => utils:binhex(),
-            opening => 9,
-            closing => 5,
-            timeblock => 60,
-            timezone  => utils:binhex()}},
+    Payload = #{org => #{
+        name      => utils:binhex(),
+        subdomain => utils:binhex(),
+        website   => utils:binhex(),
+        email     => utils:binhex(),
+        password  => utils:binhex()}},
 
     {ok, "200", _, Resp} = ibrowse:send_req(Endpoint, test_utils:headers(),
         post, jiffy:encode(Payload)),

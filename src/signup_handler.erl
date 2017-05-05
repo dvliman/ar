@@ -16,47 +16,25 @@ content_types_accepted(Req, State) ->
 signup(Req, State) ->
     {ok, Body, Req1} = cowboy_req:read_body(Req),
 
-    Payload = jiffy:decode(Body, [return_maps]),
     #{<<"org">> := #{
         <<"name">>      := Name,
         <<"subdomain">> := Subdomain,
-        <<"website">>   := Website},
-      <<"account">> := #{
-        <<"fname">>  := Fname,
-        <<"lname">>  := Lname,
-        <<"phone">>  := Phone,
-        <<"email">>  := Email,
-        <<"street">> := Street,
-        <<"state">>  := St,
-        <<"zipcode">>  := Zipcode},
-      <<"calendar">> := #{
-          <<"name">>    := Cname,
-          <<"opening">> := Opening,
-          <<"closing">> := Closing,
-          <<"timeblock">> := Timeblock,
-          <<"timezone">>  := Timezone}} = Payload,
+        <<"website">>   := Website,
+        <<"email">>     := Email,
+        <<"password">>  := Password}} = jiffy:decode(Body, [return_maps]),
 
     Params = [Name, Subdomain, Website,
-        Fname, Lname, Phone, Email, Street, St, Zipcode,
-        Cname, Opening, Closing, Timeblock, Timezone],
+              Email, Password, utils:now()],
 
     case db:squery(queries:signup(), Params) of
         [{ok, [], []},
-         {ok, 1}, {ok, 1}, {ok, 1},
-         {ok, Columns1, Rows1},
-         {ok, Columns2, Rows2},
-         {ok, Columns3, Rows3},
+         {ok, 1},
+         {ok, Columns, Rows},
          {ok, [], []}] ->
-            Org      = utils:extract_resultset(Columns1, Rows1),
-            Account  = utils:extract_resultset(Columns2, Rows2),
-            Calendar = utils:extract_resultset(Columns3, Rows3),
-
-            Reply = jiffy:encode({[
-                {org, {Org}},
-                {account, {Account}},
-                {calendar, {Calendar}}]}),
-
+            Result = utils:extract_resultset(Columns, Rows),
+            Reply  = jiffy:encode({[{org, {Result}}]}),
             Req2 = cowboy_req:set_resp_body(Reply, Req1),
+
             {true, Req2, State};
 
         % transaction aborted, commit, and bad_request
