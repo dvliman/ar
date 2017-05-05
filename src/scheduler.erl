@@ -50,9 +50,7 @@ code_change(_OldVsn, State, _Extra) ->
 
 % return {milliseconds :: pos_integer(), iso8601 :: binary()}
 get_sleep_time() ->
-    Now = iso8601:format(erlang:timestamp()),
-
-    case db:squery(queries:earliest_runat(), [Now]) of
+    case db:squery(queries:earliest_runat(), [utils:now()]) of
         {ok, _, []} ->
             % there is no next earliest reminder, check again in 1 minute
             {MegaSecs, Secs, MicroSecs} = erlang:timestamp(),

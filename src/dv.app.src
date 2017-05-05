@@ -12,5 +12,6 @@
          jiffy,
          ibrowse,
          epgsql,
-         cowboy]}
+         cowboy,
+         iso8601]}
 ]}.
