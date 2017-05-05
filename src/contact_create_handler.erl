@@ -1,4 +1,4 @@
--module(account_create_handler).
+-module(contact_create_handler).
 -include("dv.hrl").
 
 -export([init/2, allowed_methods/2,
