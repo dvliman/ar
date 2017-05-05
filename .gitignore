@@ -9,3 +9,4 @@ _build/
 *@nohost*
 log/
 ct_log_cache
+rebar3.crashdump

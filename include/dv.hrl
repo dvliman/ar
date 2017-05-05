@@ -1,8 +1,9 @@
--record(org,      {id, name, subdomain, website, plan}).
--record(calendar, {id, orgid, name, opening, closing, timeblock, timezone}).
--record(account,  {id, orgid, fname, lname, phone, email, street, state, zipcode, password}).
--record(event,    {id, name, calendarid, accountid, stime, etime, ctime, status}).
--record(reminder, {id, accountid, recipient, body, kind}).
+-record(org,      {id, name, subdomain, website, plan, email, password, ctime}).
+-record(contact,  {id, orgid, fname, lname, phone, email, ctime}).
+-record(event,    {id, orgid, name, status, stime, etime, ctime}).
+-record(reminder, {id, kind, target, body, status, runat}).
+-record(event_reminder, {eventid, reminderid}).
+-record(error,    {id, orgid, reminderid, kind, reason, ctime}).
 
 -define(config(Key),
     begin

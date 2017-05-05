@@ -60,9 +60,9 @@ up(reminders) ->
     {ok, [], []} = db:squery(
         "CREATE TABLE IF NOT EXISTS reminders (
             id        SERIAL NOT NULL,
-            recipient TEXT NOT NULL,
-            body      TEXT NOT NULL,
             kind      TEXT NOT NULL,
+            target    TEXT NOT NULL,
+            body      TEXT NOT NULL,
             status    TEXT NOT NULL,
             runat     TIMESTAMP NOT NULL)");
 
@@ -70,8 +70,7 @@ up(event_reminders) ->
     {ok, [], []} = db:squery(
         "CREATE TABLE IF NOT EXISTS event_reminders (
             eventid    INTEGER NOT NULL,
-            reminderid INTEGER NOT NULL,
-            ctime TIMESTAMP DEFAULT (now()));");
+            reminderid INTEGER NOT NULL);");
 
 up(errors) ->
     {ok, [], []} = db:squery(

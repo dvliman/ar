@@ -1,7 +1,7 @@
 -module(db).
 -behavior(gen_server).
 
--record(state, {status, conn}).
+-record(state, {conn}).
 
 -export([init/1,
          start_link/1,
@@ -27,19 +27,16 @@ init(Args) ->
 
     case epgsql:connect(Args) of
         {ok, C} ->
-            {ok, #state{status = connected, conn = C}};
+            {ok, #state{conn = C}};
         {error, Reason} ->
-            {ok, #state{status = Reason, conn = undefined}}
+            {ok, #state{conn = Reason}}
     end.
 
-handle_call(conn, _, #state{status = connected, conn = C} = State) ->
-    {reply, C, State};
-
-handle_call({squery, Query}, _, #state{status = connected, conn = C} = State) ->
+handle_call({squery, Query}, _, #state{conn = C} = State) ->
     Reply = epgsql:squery(C, Query),
     {reply, Reply, State};
 
-handle_call({squery, Query, Params}, _, #state{status = connected, conn = C} = State) ->
+handle_call({squery, Query, Params}, _, #state{conn = C} = State) ->
     Reply = epgsql:squery(C, utils:interpolate(Query, Params)),
     {reply, Reply, State}.
 

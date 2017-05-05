@@ -28,22 +28,23 @@ process(Req, State) ->
             {stop, Req2, State}
     end.
 
-validate(Payload) ->
-    Required = ?required_fields(account),
-
-    case utils:intersection(Required, maps:keys(Payload)) of
-        Required ->
-            maps:fold(fun check/3, ok, Payload); % now check each attribute
-        Intersected ->
-            Missing = Required -- Intersected,
-            {error, missing_required_fields, hd(Missing)}
-    end.
-
-check(<<"orgid">>, OrgId, ok) ->
-    case db:squery(queries:org_exists(), [OrgId]) of
-        {ok, _, [{<<"t">>}]} -> ok;
-        {ok, _, [{<<"f">>}]} -> {error, invalid_orgid}
-    end;
-
-check(_, _, ok)               -> ok;
-check(_, _, {error, _} = Acc) -> Acc.
+validate(_) -> ok.
+%%validate(Payload) ->
+%%    Required = ?required_fields(contact),
+%%
+%%    case utils:intersection(Required, maps:keys(Payload)) of
+%%        Required ->
+%%            maps:fold(fun check/3, ok, Payload); % now check each attribute
+%%        Intersected ->
+%%            Missing = Required -- Intersected,
+%%            {error, missing_required_fields, hd(Missing)}
+%%    end.
+%%
+%%check(<<"orgid">>, OrgId, ok) ->
+%%    case db:squery(queries:org_exists(), [OrgId]) of
+%%        {ok, _, [{<<"t">>}]} -> ok;
+%%        {ok, _, [{<<"f">>}]} -> {error, invalid_orgid}
+%%    end;
+%%
+%%check(_, _, ok)               -> ok;
+%%check(_, _, {error, _} = Acc) -> Acc.
