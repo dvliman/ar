@@ -16,14 +16,14 @@ minute_level(_) ->
             RunAt  = utils:now()],
 
     % assert: insert and query on the same timestamp
-    % would return the same row (note: we truncate seconds level when we query)
+    % would return the same row (note: we truncate seconds when query at minute level)
     {ok, 1} = db:squery(queries:new_reminder(), Args),
 
     {ok, _, _, MaybeRows} =
         db:squery(queries:fetch_and_schedule_reminders(), [RunAt]),
 
-    % if we run this test several times within a minute
-    % you are going to match for multiple
+    % if you run this test several times within a minute
+    % you are going to match for multiple, assert just 1 matching
     true = lists:any(
         fun({_, K, T, B, _, R}) when
             K =:= Kind,
@@ -51,6 +51,8 @@ earliest_runat(_) ->
     {ok, _, [{T2}]} = db:squery(queries:earliest_runat(), [T0]).
 
 earliest_runat_equals_now(_) ->
+    truncate_reminders_table(),
+    
     Now = utils:now(),
     Args1 = [<<"sms">>, utils:binhex(), utils:binhex(), Now],
     Args2 = [<<"sms">>, utils:binhex(), utils:binhex(), Now],
