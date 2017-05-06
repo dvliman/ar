@@ -17,9 +17,12 @@ up() ->
     up(errors).
 
 up(iso8601) ->
+    % note: AT TIME ZONE 'UTC' looks duplicated but it is not
+    % postgres timezone conversion throws away timezone information from result
     db:squery(
         "CREATE FUNCTION iso8601(ts timestamp) RETURNS CHARACTER AS $$
-            SELECT TO_CHAR(ts::timestamp AT TIME ZONE \'UTC\', \'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"\')
+            SELECT TO_CHAR(ts AT TIME ZONE \'UTC\' AT TIME ZONE \'UTC\',
+                \'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"\')
             $$ LANGUAGE SQL IMMUTABLE;");
 
 up(orgs) ->
