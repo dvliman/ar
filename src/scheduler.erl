@@ -17,11 +17,7 @@ start_link(Args) ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, Args, []).
 
 init([]) ->
-    {SleepUntil, Next} = get_sleep_time(),
-    Tref = erlang:send_after(SleepUntil, scheduler, {wakeup, Next}),
-
-    {ok, #state{tref = Tref,
-                next = Next}}.
+    {ok, #state{}}.
 
 handle_call(_Msg, _From, State) ->
     {noreply, State}.
@@ -30,7 +26,7 @@ handle_cast(_Msg, State) ->
     {noreply, State}.
 
 handle_info({wakeup, Time}, State) ->
-    Current = drop_secs(Time),
+    Current = utils:drop_secs(Time),
 
     case db:squery(queries:fetch_and_schedule_reminders(), [Current]) of
         {ok, 0} ->
@@ -61,7 +57,3 @@ get_sleep_time() ->
             Diff = utils:utc_diff(Next, iso8601:format(erlang:timestamp())),
             {Diff, Next}
     end.
-
-drop_secs(Utc) ->
-    {Date, {Hour, Minute, _}} = iso8601:parse(Utc),
-    iso8601:format({Date, {Hour, Minute, 00}}).

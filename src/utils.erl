@@ -8,7 +8,8 @@
          uuid/0, binuuid/0, binhex/0,
          datetime_to_timestamp/1,
          utc_diff/2,
-         now/0]).
+         now/0,
+         drop_secs/1]).
 
 interpolate(Pattern, Args) when length(Args) > 0 ->
     lists:flatten(io_lib:format(Pattern, Args)).
@@ -57,3 +58,7 @@ utc_diff(Larger, Smaller) ->
 
 now() ->
     iso8601:format(erlang:timestamp()).
+
+drop_secs(Utc) ->
+    {Date, {Hour, Minute, _}} = iso8601:parse(Utc),
+    iso8601:format({Date, {Hour, Minute, 00}}).
