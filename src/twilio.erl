@@ -5,20 +5,20 @@
 -define(AUTH_TOKEN, "ebf6da29fc920a409de7578ea6774e93").
 -define(ENDPOINT, "https://api.twilio.com/2010-04-01/Accounts/~s/Messages.json").
 
--export([send/2]).
+-export([accept/4]).
 
-send(To, Body) when is_binary(To), is_binary(Body) ->
+accept(Id, OrgId, To, Body) ->
     case ibrowse:send_req(endpoint(), headers(), post, body(To, Body)) of
         {ok, "201", _, _} ->
-            sent;
-        {ok, StatusCode, _, ResponseBody} ->
-            ct:pal("twilio:send, to:~p, body:~p, status-code:~p, response-body:~p",
-                [To, Body, StatusCode, ResponseBody]),
-            not_sent;
+            db:squery(queries:mark_as_sent(), [Id]);
+
+        {ok, _, _, Response} ->
+            #{<<"message">> := Msg} = jiffy:decode(Response, [return_maps]),
+            db:squery(queries:report_error(), [Id, OrgId, Id, <<"sms">>, Msg, utils:now()]);
+
         {error, Reason} ->
-            ct:pal("twilio:send, to:~p, body:~p, reason:~p",
-                [To, Body, Reason]),
-            not_sent
+            Msg = term_to_binary(Reason),
+            db:squery(queries:report_error(), [Id, OrgId, Id, <<"sms">>, Msg, utils:now()])
     end.
 
 body(To, Body) ->

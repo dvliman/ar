@@ -14,4 +14,4 @@ init([]) ->
     Scheduler = {scheduler, {scheduler, start_link, [[]]},
         permanent, 1000, worker, [scheduler]},
 
-    {ok, {{one_for_all, 10, 30}, [Db, Scheduler]}}.
+    {ok, {{one_for_one, 10, 30}, [Db, Scheduler]}}.

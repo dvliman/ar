@@ -1,7 +1,7 @@
 -module(scheduler).
 -behavior(gen_server).
 
--record(state, {tref, next}).
+-record(state, {tref, ts}).
 
 -export([init/1,
          start_link/1,
@@ -25,12 +25,12 @@ handle_call(_Msg, _From, State) ->
 handle_cast(_Msg, State) ->
     {noreply, State}.
 
-handle_info({wakeup, Time}, State) ->
-    case db:squery(queries:fetch_and_schedule_reminders(), [Time]) of
+handle_info(wakeup, #state{ts = Timestamp} = State) ->
+    case db:squery(queries:fetch_and_schedule_reminders(), [Timestamp]) of
         {ok, 0} ->
             no_work_sleep_again;
-        {ok, N, _, Reminders} ->
-            ok
+        {ok, _, _, Reminders} ->
+            lists:foreach(fun dispatch/1, Reminders)
     end,
 
     {noreply, next_state(State)}.
@@ -41,19 +41,36 @@ terminate(_Reason, _State) ->
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
-next_state(#state{tref = undefined}) ->
-    ok.
+dispatch({Id, OrgId, <<"sms">>, To, Body, _, _}) ->
+    erlang:spawn(twilio, accept, [Id, OrgId, To, Body]);
+dispatch({Id, OrgId, <<"email">>, To, Body, _, _}) ->
+    erlang:spawn(sendgrid, accept, [Id, OrgId, To, Body]).
 
-% return {milliseconds :: pos_integer(), iso8601 :: binary()}
-get_sleep_time() ->
-    case db:squery(queries:earliest_runat(), [utils:now()]) of
+next_state(#state{tref = undefined}) ->
+    new_state(utils:now());
+next_state(#state{tref = Tref, ts = LastTimestamp}) when is_reference(Tref) ->
+    timer:cancel(Tref),
+    new_state(LastTimestamp).
+
+new_state(Since) ->
+    {SleepTime, Next} = get_sleep_time(Since),
+
+    #state{ts = Next,
+           tref = erlang:send_after(SleepTime, ?MODULE, wakeup)}.
+
+% return {sleep-time :: milliseconds(), next :: iso8601()}
+% we return the 'next' value so that if the scheduler
+% is slowing down, we dont skip, we recover from last processed
+get_sleep_time(Since) ->
+    case db:squery(queries:earliest_runat(), [Since]) of
         {ok, _, []} ->
-            % there is no next earliest reminder, check again in 1 minute
+            % there is no next earliest reminder, check again in a minute
             {MegaSecs, Secs, MicroSecs} = erlang:timestamp(),
             Next = {MegaSecs, Secs + 60, MicroSecs},
             {?ONE_MINUTE, iso8601:format(Next)};
 
-        {ok, _, [Next]} ->
-            Diff = utils:utc_diff(Next, iso8601:format(erlang:timestamp())),
+        {ok, _, [{Next}]} ->
+            Diff = utils:utc_diff(Next, utils:now()),
             {Diff, Next}
     end.
+

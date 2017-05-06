@@ -4,7 +4,9 @@
          org_exists/0,
          earliest_runat/0,
          new_reminder/0,
-         fetch_and_schedule_reminders/0]).
+         mark_as_sent/0,
+         fetch_and_schedule_reminders/0,
+         report_error/0]).
 
 signup() ->
     <<"BEGIN;
@@ -20,20 +22,30 @@ org_exists() ->
 earliest_runat() ->
     <<"SELECT iso8601(runat)
         FROM reminders
-        WHERE date_trunc('minute', runat) >= date_trunc('minute', '~s'::timestamp)
+        WHERE date_trunc('minute', runat) > date_trunc('minute', '~s'::timestamp)
         ORDER BY runat ASC
         LIMIT 1">>.
 
 new_reminder() ->
-    <<"INSERT INTO reminders (kind, target, body, status, runat)
-        VALUES ('~s', '~s', '~s', 'new', '~s');">>.
+    <<"INSERT INTO reminders (orgid, kind, target, body, status, runat)
+        VALUES ('~b','~s', '~s', '~s', 'new', '~s');">>.
+
+mark_as_sent() ->
+    <<"UPDATE reminders SET status = 'sent' WHERE id = '~s'">>.
 
 fetch_and_schedule_reminders() ->
-    <<"UPDATE reminders SET status = 'processed'
+    <<"UPDATE reminders SET status = 'scheduled'
         FROM (
             SELECT id
             FROM reminders
             WHERE date_trunc('minute', runat) = date_trunc('minute', '~s'::timestamp)) AS subquery
         WHERE reminders.id = subquery.id
-        RETURNING reminders.id as id, kind, target, body, status, iso8601(runat)">>.
+        RETURNING reminders.id as id, orgid, kind, target, body, status, iso8601(runat)">>.
+
+report_error() ->
+    <<"BEGIN;
+        UPDATE reminders SET status = 'error' WHERE id = '~s';
+        INSERT INTO errors (orgid, reminderid, kind, reason, ctime)
+            VALUES ('~b', '~b', '~s', '~s', '~s');
+       COMMIT;">>.
 

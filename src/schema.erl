@@ -63,6 +63,7 @@ up(reminders) ->
     {ok, [], []} = db:squery(
         "CREATE TABLE IF NOT EXISTS reminders (
             id        SERIAL NOT NULL,
+            orgid     INTEGER NOT NULL,
             kind      TEXT NOT NULL,
             target    TEXT NOT NULL,
             body      TEXT NOT NULL,

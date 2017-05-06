@@ -8,7 +8,8 @@
          uuid/0, binuuid/0, binhex/0,
          datetime_to_timestamp/1,
          utc_diff/2,
-         now/0]).
+         now/0,
+         increment_minute/2]).
 
 interpolate(Pattern, Args) when length(Args) > 0 ->
     lists:flatten(io_lib:format(Pattern, Args)).
@@ -57,3 +58,7 @@ utc_diff(Larger, Smaller) ->
 
 now() ->
     iso8601:format(erlang:timestamp()).
+
+increment_minute(Utc, HowMany) when HowMany > 0; HowMany < 60->
+    {Date, {Hour, Minute, Seconds}} = iso8601:parse(Utc),
+    iso8601:format({Date, {Hour, Minute + HowMany, Seconds}}).
