@@ -20,7 +20,7 @@ org_exists() ->
 earliest_runat() ->
     <<"SELECT iso8601(runat)
         FROM reminders
-        WHERE date_trunc('minute', runat::timestamp) >= date_trunc('minute', '~s'::timestamp)
+        WHERE date_trunc('minute', runat) >= date_trunc('minute', '~s'::timestamp)
         ORDER BY runat ASC
         LIMIT 1">>.
 
@@ -33,8 +33,7 @@ fetch_and_schedule_reminders() ->
         FROM (
             SELECT id
             FROM reminders
-            WHERE date_trunc('minute', runat::timestamp) = date_trunc('minute', '~s'::timestamp))
-                AS subquery
+            WHERE date_trunc('minute', runat) = date_trunc('minute', '~s'::timestamp)) AS subquery
         WHERE reminders.id = subquery.id
-        RETURNING reminders.id as id, kind, target, body, status, iso8601(runat::timestamp)">>.
+        RETURNING reminders.id as id, kind, target, body, status, iso8601(runat)">>.
 

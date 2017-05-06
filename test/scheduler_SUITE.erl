@@ -52,7 +52,7 @@ earliest_runat(_) ->
 
 earliest_runat_equals_now(_) ->
     truncate_reminders_table(),
-    
+
     Now = utils:now(),
     Args1 = [<<"sms">>, utils:binhex(), utils:binhex(), Now],
     Args2 = [<<"sms">>, utils:binhex(), utils:binhex(), Now],

@@ -17,7 +17,7 @@ start_link(Args) ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, Args, []).
 
 init([]) ->
-    {ok, #state{}}.
+    {ok, next_state(#state{})}.
 
 handle_call(_Msg, _From, State) ->
     {noreply, State}.
@@ -26,23 +26,23 @@ handle_cast(_Msg, State) ->
     {noreply, State}.
 
 handle_info({wakeup, Time}, State) ->
-    Current = utils:drop_secs(Time),
-
-    case db:squery(queries:fetch_and_schedule_reminders(), [Current]) of
+    case db:squery(queries:fetch_and_schedule_reminders(), [Time]) of
         {ok, 0} ->
+            no_work_sleep_again;
+        {ok, N, _, Reminders} ->
             ok
     end,
-    % get all reminders to be send (drop the minute part)
-    % cast it to twitter or sendgrid
-    % check all possible failure message (and report per org, and to admin)
-    % recompute sleep time and when to wakeup next
-    {noreply, State}.
+
+    {noreply, next_state(State)}.
 
 terminate(_Reason, _State) ->
     ok.
 
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
+
+next_state(#state{tref = undefined}) ->
+    ok.
 
 % return {milliseconds :: pos_integer(), iso8601 :: binary()}
 get_sleep_time() ->
