@@ -14,11 +14,13 @@ accept(Id, OrgId, To, Body) ->
 
         {ok, _, _, Response} ->
             #{<<"message">> := Msg} = jiffy:decode(Response, [return_maps]),
-            db:squery(queries:report_error(), [Id, OrgId, Id, <<"sms">>, Msg, utils:now()]);
+%%            db:squery(queries:report_error(), [Id, OrgId, Id, <<"sms">>, Msg, utils:now()]);
+            ct:pal("twilio-failure=~p", [Msg]);
 
         {error, Reason} ->
             Msg = term_to_binary(Reason),
-            db:squery(queries:report_error(), [Id, OrgId, Id, <<"sms">>, Msg, utils:now()])
+            ct:pal("twilio-error=~p", [Msg])
+%%            db:squery(queries:report_error(), [Id, OrgId, Id, <<"sms">>, Msg, utils:now()])
     end.
 
 body(To, Body) ->
