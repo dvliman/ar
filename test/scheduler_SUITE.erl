@@ -44,6 +44,7 @@ earliest_runat(_) ->
     Args1 = [99, <<"sms">>, utils:binhex(), utils:binhex(), T1],
     Args2 = [99, <<"sms">>, utils:binhex(), utils:binhex(), T2],
 
+    ct:pal("t1:~p, t2:~p, args1:~p", [T1, T2, Args1]),
     {ok, 1} = db:squery(queries:new_reminder(), Args1),
     {ok, 1} = db:squery(queries:new_reminder(), Args2),
 

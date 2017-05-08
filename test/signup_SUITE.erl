@@ -5,7 +5,6 @@
 
 all() -> [bootstrap].
 
-% create 'org', 'account', and a 'calendar'; org plan is 'free'
 bootstrap(_) ->
     Endpoint = proplists:get_value(signup_endpoint, test_utils:urls()),
 

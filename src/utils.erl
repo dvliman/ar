@@ -59,6 +59,7 @@ utc_diff(Larger, Smaller) ->
 now() ->
     iso8601:format(erlang:timestamp()).
 
+% TODO: bug here, minute max is 60
 increment_minute(Utc, HowMany) when HowMany > 0; HowMany < 60->
     {Date, {Hour, Minute, Seconds}} = iso8601:parse(Utc),
     iso8601:format({Date, {Hour, Minute + HowMany, Seconds}}).

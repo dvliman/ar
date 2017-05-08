@@ -6,7 +6,8 @@
          new_reminder/0,
          mark_as_sent/0,
          fetch_and_schedule_reminders/0,
-         report_error/0]).
+         report_error/0,
+         new_contact/0]).
 
 signup() ->
     <<"BEGIN;
@@ -46,6 +47,9 @@ report_error() ->
     <<"BEGIN;
         UPDATE reminders SET status = 'error' WHERE id = '~s';
         INSERT INTO errors (orgid, reminderid, kind, reason, ctime)
-            VALUES ('~b', '~b', '~s', '~s', '~s');
+            VALUES ('~s', '~s', '~s', '~s', '~s');
        COMMIT;">>.
 
+new_contact() ->
+    <<"INSERT INTO contacts (orgid, fname, lname, phone, email, ctime)
+        VALUES ('~s','~s', '~s', '~s', '~s', '~s');">>.

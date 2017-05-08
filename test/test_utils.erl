@@ -9,14 +9,15 @@ urls() ->
 
     [{base, Base},
      {signup_endpoint,         Base ++ "/api/signup"},
-     {account_create_endpoint, Base ++ "/api/account/create"},
-     {account_delete_endpoint, Base ++ "/api/account/delete"}].
+     {contact_create_endpoint, Base ++ "/api/account/create"},
+     {contact_delete_endpoint, Base ++ "/api/account/delete"}].
 
 headers() ->
     [{<<"Content-Type">>, <<"application/json">>}].
 
 test(Module) ->
-    lists:map(
-        fun(TestCase) ->
-            erlang:apply(Module, TestCase, [[]])
-        end, erlang:apply(Module, all, [])).
+    lists:foldl(
+        fun(TestCase, Acc) ->
+            Result = erlang:apply(Module, TestCase, [[]]),
+            [{TestCase, Result} | Acc]
+        end, [], erlang:apply(Module, all, [])).

@@ -17,11 +17,12 @@ content_types_accepted(Req, State) ->
 process(Req, State) ->
     {ok, Body, Req1} = cowboy_req:read_body(Req),
 
-    #{<<"account">> := Payload} =
+    #{<<"contact">> := Payload} =
         jiffy:decode(Body, [return_maps]),
 
     case validate(Payload) of
         ok ->
+            Inserts = db:squery(queries:new_contact(), []),
             {true, Req1, State};
         Error ->
             Req2 = errors:response(Error, Req1),

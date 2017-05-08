@@ -15,7 +15,7 @@ stop(_State) ->
 dispatch() ->
     cowboy_router:compile([{'_', [
         {"/api/signup",         signup_handler, []},
-        {"/api/account/create", account_create_handler, []},
-        {"/api/account/delete", account_delete_handler, []},
+        {"/api/contact/create", contact_create_handler, []},
+        {"/api/contact/delete", contact_delete_handler, []},
         {"/api/healthcheck",    healthcheck_handler, []}
     ]}]).
