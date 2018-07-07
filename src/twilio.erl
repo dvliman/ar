@@ -1,8 +1,8 @@
 -module(twilio).
 
 -define(FROM, <<"+16262437266">>).
--define(ACCOUNT_SID, "ACf2a601bba33d7da5604ae0f85e693834").
--define(AUTH_TOKEN, "ebf6da29fc920a409de7578ea6774e93").
+-define(ACCOUNT_SID, "api-key").
+-define(AUTH_TOKEN, "api-secret").
 -define(ENDPOINT, "https://api.twilio.com/2010-04-01/Accounts/~s/Messages.json").
 
 -export([accept/4]).
